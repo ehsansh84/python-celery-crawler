@@ -5,25 +5,34 @@ from celery import Celery, chain
 from time import sleep
 
 os.environ.setdefault('CELERY_CONFIG_MODULE', 'celery_config')
-app = Celery('calls')
+app = Celery('tasks')
 app.config_from_envvar('CELERY_CONFIG_MODULE')
 
 # app = Celery(
 #     'tasks', broker=f'redis://{os.getenv("REDIS_USER")}:{os.getenv("REDIS_PASSWORD")}@{os.getenv("BROKER_HOST")}:6379/0')
 
 
-@app.task(name='crawl')
+app.conf.task_routes = {'app.tasks.crawl_task': {'queue': 'crawler'},
+                        'app.tasks.extract_task': {'queue': 'extract'}
+                        }
+
+
+@app.task(name='crawl_task')
 def crawl(url, selector):
-    result = requests.get(url)
-    soup = BeautifulSoup(result.text, 'html.parser')
-    for i in range(10):
-        print(f'Wait... {i}')
-        sleep(1)
-    return soup.select(selector)
+    try:
+        print(url)
+        result = requests.get(url)
+        print(result.status_code)
+        soup = BeautifulSoup(result.text, 'html.parser')
+        print('DOOOOONE!')
+        return soup.select(selector)
+    except Exception as e:
+        print(str(e))
 
 
-@app.task(name='extract')
+@app.task(name='extract_task')
 def extract_info(data_items, selectors):
+    print('SSSS')
     result = []
     for item in data_items:
         doc = {}

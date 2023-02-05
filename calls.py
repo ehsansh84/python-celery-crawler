@@ -25,8 +25,8 @@ selectors = {
 
 
 chain(
-    app.signature("crawl", args=[urls[0], 'div.quote']).set(queue="crawl"),
-    app.signature("extract", args=[selectors]).set(queue="extract")
+    app.signature("crawl_task", args=[urls[0], 'div.quote']).set(queue="crawler"),
+    app.signature("extract_task", args=[selectors]).set(queue="extract")
 ).apply_async()
 
 # data = crawl(url=urls[0], selector='div.quote')
