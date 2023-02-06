@@ -9,3 +9,4 @@ RUN pip install BeautifulSoup4
 COPY celery_config.py .
 COPY calls.py .
 COPY crawler.py .
+COPY test.py .

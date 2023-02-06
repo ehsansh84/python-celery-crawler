@@ -10,31 +10,13 @@ services:
   worker1:
     build:
       context: .
-      dockerfile: ../python-celery-crawler/Dockerfile
-#    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info']
-#    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info', 'queues=crawler,extract']
-#    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info', '-Q', 'crawler' ,'-Q','extract']
-    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info', '-Q', 'crawler']
+      dockerfile: Dockerfile
+    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info', '--queues', 'crawler,extract']
     environment:
       - BROKER_URL=redis://redis:6379/0
       - RESULT_BACKEND=redis://redis:6379/1
     depends_on:
       - redis
-
-  worker2:
-    build:
-      context: .
-      dockerfile: ../python-celery-crawler/Dockerfile
-#    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info']
-#    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info', 'queues=crawler,extract']
-#    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info', '-Q', 'crawler' ,'-Q','extract']
-    command: ['celery', '-A', 'crawler.app', 'worker', '-l', 'info', '-Q', 'extract']
-    environment:
-      - BROKER_URL=redis://redis:6379/0
-      - RESULT_BACKEND=redis://redis:6379/1
-    depends_on:
-      - redis
-
   flower:
     image: mher/flower:0.9.7
     command: ['flower', '--broker=redis://redis:6379', '--port=5555']
@@ -42,6 +24,3 @@ services:
       - 5557:5555
     depends_on:
       - redis
-
-
-#    'tasks', broker=f'redis://{os.getenv("REDIS_USER")}:{os.getenv("REDIS_PASSWORD")}@{os.getenv("BROKER_HOST")}:6379/0')
