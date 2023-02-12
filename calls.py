@@ -1,6 +1,9 @@
 from celery import Celery, chain
-app = Celery('calls')
-
+app = Celery('tasks', broker="redis://redis:6379/0", backend="redis://redis:6379/1")
+# print(app.conf)
+print(app.conf.result_backend)
+print(app.conf.broker_read_url)
+print(app.conf.broker_write_url)
 urls = [
     'https://www.brainyquote.com/topics/motivational-quotes'
 ]

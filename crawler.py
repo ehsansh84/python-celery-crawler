@@ -3,9 +3,11 @@ import requests
 from bs4 import BeautifulSoup
 from celery import Celery
 
-os.environ.setdefault('CELERY_CONFIG_MODULE', 'celery_config')
-app = Celery('tasks')
-app.config_from_envvar('CELERY_CONFIG_MODULE')
+# os.environ.setdefault('CELERY_CONFIG_MODULE', 'celery_config')
+# app = Celery('tasks')
+# app.config_from_envvar('CELERY_CONFIG_MODULE')
+
+app = Celery('tasks', broker="redis://redis:6379/0", backend="redis://redis:6379/1")
 
 
 app.conf.task_routes = {'app.tasks.crawl_task': {'queue': 'crawler'},
@@ -16,6 +18,7 @@ app.conf.task_routes = {'app.tasks.crawl_task': {'queue': 'crawler'},
 @app.task(name='crawl_task')
 def crawl(url, selector):
     try:
+        print('Start')
         result = requests.get(url, verify=False)
         soup = BeautifulSoup(result.text, 'html.parser')
         return soup.select(selector)
@@ -40,4 +43,5 @@ def extract_info(data_items, selectors):
                         doc[k] = tag[0][v['attr']]
 
             result.append(doc)
+            print(doc)
         return result
